@@ -1,13 +1,13 @@
-// Package config provides a thread-safe key-value configuration management system.
+// Package config 提供线程安全的键值对配置管理系统
 //
-// Features:
-// - Load configuration from file (key=value format)
-// - Save configuration to file
-// - Get/Set values with thread safety
-// - Default values support
-// - Bulk operations (GetAll)
+// 特性:
+// - 从文件加载配置(key=value格式)
+// - 保存配置到文件
+// - 线程安全的Get/Set操作
+// - 支持默认值
+// - 批量操作(GetAll)
 //
-// Example:
+// 示例:
 //   cfg, err := config.NewConfig()
 //   if err != nil {
 //       log.Fatal(err)
@@ -24,30 +24,30 @@ import (
 	"sync"
 )
 
-// Config represents a thread-safe key-value configuration store.
-// It provides methods to load, save, and manipulate configuration values.
-// All operations are protected by a RWMutex for concurrent access.
+// Config 表示线程安全的键值对配置存储
+// 提供加载、保存和操作配置值的方法
+// 所有操作都通过RWMutex保护以实现并发访问
 type Config struct {
 	data  map[string]string
 	mutex sync.RWMutex // 保证并发安全
 }
 
-// NewConfig creates and returns a new Config instance.
-// Returns:
-// - *Config: pointer to new Config instance
-// - error: any initialization error
+// NewConfig 创建并返回新的Config实例
+// 返回:
+// - *Config: 指向新Config实例的指针
+// - error: 初始化错误(如果有)
 func NewConfig() (*Config, error) {
 	return &Config{
 		data: make(map[string]string),
 	}, nil
 }
 
-// LoadFromFile loads configuration from a file in key=value format.
-// Skips empty lines and lines starting with # (comments).
-// Args:
-// - filename: path to configuration file
-// Returns:
-// - error: any file operation or parsing error
+// LoadFromFile 从key=value格式的文件加载配置
+// 跳过空行和以#开头的行(注释)
+// 参数:
+// - filename: 配置文件路径
+// 返回:
+// - error: 文件操作或解析错误(如果有)
 func (c *Config) LoadFromFile(filename string) error {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
@@ -80,23 +80,23 @@ func (c *Config) LoadFromFile(filename string) error {
 	return scanner.Err()
 }
 
-// Get retrieves a configuration value by key.
-// Args:
-// - key: configuration key to lookup
-// Returns:
-// - string: value if key exists, empty string otherwise
+// Get 根据键获取配置值
+// 参数:
+// - key: 要查找的配置键
+// 返回:
+// - string: 键存在时返回对应值，否则返回空字符串
 func (c *Config) Get(key string) string {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
 	return c.data[key]
 }
 
-// GetWithDefault retrieves a configuration value with fallback to default.
-// Args:
-// - key: configuration key to lookup
-// - defaultValue: value to return if key doesn't exist
-// Returns:
-// - string: value if key exists, defaultValue otherwise
+// GetWithDefault 获取配置值，支持默认值回退
+// 参数:
+// - key: 要查找的配置键
+// - defaultValue: 键不存在时返回的默认值
+// 返回:
+// - string: 键存在时返回对应值，否则返回defaultValue
 func (c *Config) GetWithDefault(key, defaultValue string) string {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -106,12 +106,12 @@ func (c *Config) GetWithDefault(key, defaultValue string) string {
 	return defaultValue
 }
 
-// Set stores a configuration value.
-// Args:
-// - key: configuration key
-// - value: value to store
-// Returns:
-// - error: if key is empty
+// Set 存储配置值
+// 参数:
+// - key: 配置键
+// - value: 要存储的值
+// 返回:
+// - error: 当key为空时返回错误
 func (c *Config) Set(key, value string) error {
 	if key == "" {
 		return errors.New("key cannot be empty")
@@ -122,11 +122,11 @@ func (c *Config) Set(key, value string) error {
 	return nil
 }
 
-// Has checks if a configuration key exists.
-// Args:
-// - key: configuration key to check
-// Returns:
-// - bool: true if key exists
+// Has 检查配置键是否存在
+// 参数:
+// - key: 要检查的配置键
+// 返回:
+// - bool: 键存在时返回true
 func (c *Config) Has(key string) bool {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -134,18 +134,18 @@ func (c *Config) Has(key string) bool {
 	return ok
 }
 
-// Delete removes a configuration key-value pair.
-// Args:
-// - key: configuration key to remove
+// Delete 删除配置键值对
+// 参数:
+// - key: 要删除的配置键
 func (c *Config) Delete(key string) {
 	c.mutex.Lock()
 	defer c.mutex.Unlock()
 	delete(c.data, key)
 }
 
-// GetAll returns a copy of all configuration key-value pairs.
-// Returns:
-// - map[string]string: copy of all configuration data
+// GetAll 返回所有配置键值对的副本
+// 返回:
+// - map[string]string: 所有配置数据的副本
 func (c *Config) GetAll() map[string]string {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
@@ -156,11 +156,11 @@ func (c *Config) GetAll() map[string]string {
 	return copy
 }
 
-// SaveToFile saves all configuration to a file in key=value format.
-// Args:
-// - filename: path to destination file
-// Returns:
-// - error: any file operation error
+// SaveToFile 将所有配置以key=value格式保存到文件
+// 参数:
+// - filename: 目标文件路径
+// 返回:
+// - error: 文件操作错误(如果有)
 func (c *Config) SaveToFile(filename string) error {
 	c.mutex.RLock()
 	defer c.mutex.RUnlock()
